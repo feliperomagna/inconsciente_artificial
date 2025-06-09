@@ -1,0 +1,87 @@
+<jittershader name="ImageToParticlesShader">
+	<description> </description>
+	<param name="iPosition" type="vec3" state="POSITION" />
+	<param name="iVelocity" type="vec3" state="NORMAL" />
+	<param name="iColor" type="vec4"    state="COLOR" />
+	<param name="iPosOrig" type="vec3"  state="VERTEX_ATTR" />
+	<param name="uMousePos" type="vec3" default="0.0 0.0 0.0" />
+	<param name="uMaxVel" type="float"  default="0.04" />
+	<param name="uMouseForce" type="float"  default="0.0007" />
+	<param name="uDragAmt" type="float"  default="0.99" />
+	<param name="uOrigForceAmt" type="float"  default="0.00009" />
+	<language name="glsl" version="1.5">
+		<bind param="iPosition" program="vp" />
+		<bind param="iVelocity" program="vp" />
+		<bind param="iColor"    program="vp" />
+		<bind param="iPosOrig"  program="vp" />
+		<bind param="uMousePos" program="vp" />
+		<bind param="uMaxVel"   program="vp" />
+		<bind param="uMouseForce"   program="vp" />
+		<bind param="uDragAmt"   program="vp" />
+		<bind param="uOrigForceAmt"   program="vp" />
+		<program name="vp" type="vertex">
+<![CDATA[
+#version 330 core
+
+uniform float uDragAmt;
+uniform float uMouseForce;
+uniform vec3 uMousePos;
+uniform float uMaxVel;
+uniform float uOrigForceAmt;
+
+in vec3 iPosition;
+in vec4 iColor;
+in vec3 iVelocity;
+in vec3 iPosOrig;
+
+out vec3 oPosition;
+out vec3 oVelocity;
+out vec4 oColor;
+out vec3 oPosOrig;
+
+
+void main() {
+	
+	vec3 dirFromMouse = iPosition - uMousePos;
+	vec3 normDirFromMouse = normalize(dirFromMouse);
+	float distFromMouse = length(dirFromMouse);
+
+	// force from position to original position
+
+	vec3 dirToOrig = iPosOrig - iPosition;
+	vec3 normDirToOrig = normalize(dirToOrig);
+	float distFromOrig = length(dirToOrig);
+
+	
+	vec3 acc = normDirFromMouse * uMouseForce;
+	float distFromMouseSqrd = (distFromMouse*2.0) * (distFromMouse*2.0) * 2000.0;
+	acc /= distFromMouseSqrd + 0.00001;
+
+	acc *= (iColor.r + iColor.g + iColor.b) * 2.0 + 1.0;
+
+	acc += normDirToOrig * uOrigForceAmt * (distFromOrig * 0.5);
+	
+	oVelocity = acc + iVelocity;
+	oVelocity = clamp(oVelocity, vec3(-uMaxVel), vec3(uMaxVel));
+	
+	oPosition = iPosition + oVelocity;
+	oVelocity *= uDragAmt;
+
+	oColor = iColor;
+	oPosOrig = iPosOrig;	
+
+}
+]]>
+		</program>
+		<program name="fp" type="fragment">
+<![CDATA[
+#version 330 core
+
+
+void main() {
+	
+}	
+]]>
+		</program>
+	</language>
+</jittershader>

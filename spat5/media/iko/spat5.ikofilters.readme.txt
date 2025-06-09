@@ -1,0 +1,51 @@
+spat5.ikofilters
+
+=====================================================================
+The filters in the iko3/ directory correspond to decoding filters provided by Sonible.
+Originally under the names:
+Filters/iko3/IKO3_11-Oct-2018_LOW_TASTE_EQ/IKOFilter_SH_In1.wav
+Filters/iko3/IKO3_11-Oct-2018_LOW_TASTE_EQ/IKOFilter_SH_In2.wav
+...
+Filters/iko3/IKO3_11-Oct-2018_LOW_TASTE_EQ/IKOFilter_SH_In16.wav
+
+These files are with ACN SN3D convention, and for : 
+IKO3 model (with 6" full range speakers ??)
+IKO decoder plus crosstalk cancellation and limited radial filters 
+Measurement / FilterDesign: 2021-02-26_LDVMessungIKO001007 / 10-Mar-2021 
+
+The original files provided by Sonible are 4096-tap FIR at 44100 Hz.
+For spat5.ikofilters, the original files have been resampled to 48 kHz,
+and truncated to 2048 and 1024-tap for efficiency.
+(truncated versions also include a short 16-sample fade-out)
+The 4096 and 2048 versions are nearby identical (in terms of magnitude and group delay responses).
+The 1024 version exhibit minor differences (inaudible?) in the low frequency region.
+
+See e.g. 
+F. Schultz, M. Zaunschirm, and F. Zotter. 
+Directivity and Electro-Acoustic Measurements of the IKO. 
+In Proc. of the 144th Convention of the Audio Engineering Society (AES), Milan, Italy, May 2018.
+https://aes2.org/publications/elibrary-page/?id=19557
+for short description of the IKO1, IKO2 and IKO3 specifications.
+IKO3 corresponds to the version manufactured by Sonible.
+
+=====================================================================
+The filters in the IKO001007/ directory correspond to decoding filters available at: 
+https://phaidra.kug.ac.at/o:113422
+Author :  Franz Zotter   Institute of Electronic Music and Acoustics
+Description : MCFX Convolver preset (wav files and jconvolver conf files)  
+for decoding 16 Ambisonics channels (3rd order) to 20 loudspeakers of IKO001007 
+including radial focussing filters and crosstalk cancelation.
+Title : DAW filter presets for IKO001007
+# IKO decoder plus crosstalk cancellation and limited radial filters 
+#  Measurement / FilterDesign: 2021-02-26_LDVMessungIKO001007 / 10-Mar-2021 
+# path: IKO001007_10-Mar-2021_LOW_TASTE_EQ
+
+We assume these files are with ACN SN3D convention.
+
+The original files provided are 4096-tap FIR at 44100 Hz.
+For spat5.ikofilters, the original files have been resampled to 48 kHz,
+and truncated to 2048 and 1024-tap for efficiency.
+(truncated versions also include a short 16-sample fade-out).
+=====================================================================
+
+								
