@@ -1,71 +1,116 @@
-# Somax 2
-Somax2 is an application for musical improvisation and composition using AI with machine listening, cognitive memory activation model, multi-agent architecture, full application interface to agent patching and control, and full Max library API. Somax2 is implemented in [Max](https://cycling74.com/products/max/) and Python and is based on a generative AI model to provide real-time machine improvisations coherent both with the internal selected corpus styles and with the unfolding external musical context. Somax2 handles both MIDI and audio input, corpus memory, and output. The model can be used with little configuration to let its agents autonomously interact with musicians (and one with another), but it also allows a variety of manual controls of its generative process and interaction strategies, effectively letting one use it as a fully flexible smart instrument.
+# Inconsciente Artificial [Artificial Unconscious] (2025)
 
-While the application can be used straight out of the box with little configuration (see [Getting Started](#Getting-started) below), it is also designed as a library, allowing the user to create custom models as well as set up networks of multiple models and sources that are listening to and interacting with each other.
+**Felipe Romagna**
+For bandoneón, saxophone, video and electronics
 
-## Requirements
+## About the piece
 
-* macOS 10.13 or later / Windows 10+
-* Max 8.5 or later
-* (Python 3.9 or later -- only needed for manual installation)
+The act of improvising has a deep connection with dreams. In this piece, the machine appropriates the musicians' dream-improvisations to build what it is incapable of having: "the machine's dreams."
 
-## Installation
+The piece is a free-improvisation performance in which the musicians interact in real time with the electronics and the video. The electronics are built on **Somax2**, a corpus-based musical improvisation system that "listens" to what each instrumentalist plays, records that material into a buffer, and feeds it back transformed, as the machine's improvised response. The video reacts to that same sonic material, creating a closed loop between sound, gesture, and image.
 
-### Easy Installation
+The work is spatialized over eight channels.
 
-This is the path recommended for most users, unless you explicitly want to modify the python code.
+## Technical requirements (Rider)
 
-* Go to [Releases](https://github.com/DYCI2/Somax2/releases) and download the latest version of Somax 2 (`Somax-v2_x_x.dmg`)
-* Copy the extracted `Somax2` folder  into the `Packages` folder in your Max folder (by default, this is `"~/Documents/Max 8/Packages"`)
-* You're done! Now, have a look at the [Getting Started](#getting-started) section below on where to go next
+**Stage / instrumentation**
+- Bandoneón (with 2 microphones)
+- Saxophone (with 1 microphone)
+- 1 controller (for the performer operating the patch)
+- 1 laptop for video and electronics control
 
+**Venue equipment**
+- 8 loudspeakers (octophonic spatialization) + 8 XLR cables, 3 m
+- 1 table
+- 1 audio interface (minimum 8 outputs + inputs for the 3 microphones)
+- 1 laptop
+- 1 HDMI cable
+- 3 microphones
+- 1 power strip
+- 1 video projector
+- 1 projection screen
 
-### Manual Installation:
-If you want to modify the python code, you will need a manual installation. This assumes you already have python 3.9+ installed.
+The stage layout follows the rider diagram: bandoneón and its microphones on the left; controller and saxophone with microphone on the right; screen upstage; video-control laptop downstage center, between the front speakers.
 
-#### Step 1: Install Somax
+## Required software
 
-* Clone the master branch of this [repository](https://github.com/DYCI2/Somax2) or go to [Releases](https://github.com/DYCI2/Somax2/releases) and download the latest version of the Somax source code.
-* Add the `max/somax` subfolder of Somax2 to your Max path through Options -> File Preferences in Max. Make sure that the `subfolders` option is checked.
+To run the patch you need to have installed:
 
-#### Step 2: Install Python Requirements
+- **Max/MSP 8** (or later)
+- **Jitter** (bundled with Max, used for the video patch)
+- **Somax2** — the improvisation package/externals (`somax.server`, `somax.player`, `somax.audiorecord`, `somax.audiorenderer`, `somax.audioinfluencer`)
+- **FluCoMa** (Fluid Corpus Manipulation) — the `fluid.ampgate~` object is used for onset/silence detection
+- A VST delay plugin (referenced in the patch as `DualDelay`) and a reverb plugin, loaded via `vst~`/`mc.vst~`
+- An audio interface with at least **8 outputs** (for the spatialization channels) and **3 inputs** (bandoneón, saxophone, and the controller/computer audio, if applicable)
 
-* In a terminal, cd to the `Somax2` root folder and install the requirements with `pip3 install -r python/somax/requirements.txt`
+> Before opening the patch, confirm that the Somax2 and FluCoMa packages appear in Max's **Package Manager**, and that the VST plugins are on Max's search path (Options > File Preferences).
 
-## Getting Started
-The main Somax application is the patch `somax2.maxpat`. You can open this patch from inside Max or directly from Finder.
+## Patch structure (`ia_final.maxpat`)
 
-The document `Somax2 User's Guide.pdf` gives an overview of how the somax2 interaction model works and presents the Somax2 objects and UI.
+The main patch brings together three layers of work:
 
-The `somax2.overview.maxpat` tutorial and help center is the starting point to begin exploring interactively the world of Somax2. From here you will be able to access all the different interactive tutorials, as well as to get access to ready-to-play patches defining specific performance strategies. Templates from one to four players are also available, as well as maxhelps for all the Somax2 objects.
+### 1. Somax2 — the machine's "two musicians"
+There are two **MUSICIAN 1 / MUSICIAN 2** pairs, one for the bandoneón and one for the saxophone. Each contains:
+- A live-recording **buffer** for the instrument (`somax.audiorecord`)
+- A **player** (`somax.player`) that builds the corpus and generates the improvised responses
+- **Input** controls (instrument level fader)
+- Behavior parameters: `mode reactive` / `mode continuous`, `start/stop influences`, `pause on silence`
+- Monitoring of **matches** (harmonic/melodic internal and external) and of the playback index (`cont`)
+- A **Delay** and **Reverb** section (VST plugins) applied to the machine's output
+- A **Master Player 8 channels** section that distributes the generated sound across the eight loudspeakers
 
-**macOS: Note that the first time you launch Somax, depending on your security settings you may be presented with a number of dialogues asking you to give permission to a number of externals (shell, bonk, ircamdescriptor, bc.virfun and bc.yinstats) that Somax requires to be able to run. You may also be asked for permission the first time you launch the server (this step is explained in the tutorial). Accept each of those to proceed.**
+### 2. Video (`p video_ia` subpatch)
+Controls the real-time projection:
+- `jit.world` creates the output window/canvas (1920×1080)
+- `jit.movie` plays the video files (`video_ia_4.mp4`, `video_ia_final...`, `video_glitch.mp4`)
+- `jit.gl.videoplane`, `jit.gl.mesh` and `jit.gl.gridshape` generate the visual layers
+- `jit.fx.eclipse` applies the glitch/transformation effect, controlled by the `steps`, `mode`, `enable_tint` and `bypass` parameters
+- The video can be triggered and modulated by the sound analysis coming from Somax (the same "dream" mechanism applied to the image)
 
-## Documentation and Resources
+### 3. Control panel (left-hand sidebar, numbered 0–4)
+The performance's control buttons and messages, in suggested order of use:
+- **0 – REC / open**: opens the session recording (`mc.sfrecord~`, 8 channels)
+- **1 – SERVER**: `Start players/server` starts `somax.server` and the players; the indicator shows `offline`/online
+- **2 – START/END PEÇA** (START/END PIECE): triggers and ends the piece (sends `start`/`stop` to the whole object chain)
+- **3 – LIGAR SOM** (TURN ON SOUND): activates the audio chain (equivalent to turning on the `dac~`/`mc.dac~`)
+- **4 – PARTE B VIDEO / DESLIGA VIDEO / CLEAN BUFFER / SOM TESTE / ACABOU** (VIDEO PART B / VIDEO OFF / CLEAN BUFFER / TEST SOUND / FINISHED): controls for the piece's second part, turning off the video, clearing the Somax recording buffers, a spatialization test sound, and ending the performance
 
-* **Introduction to Somax:** The document `Somax2 User's Guide.pdf` is intended as a starting point to give an understanding of how the interaction model of Somax works.
-* **Max Help Files:** The main documentation of Somax. Individual help files exists for each Max object, outlining how to use the object, its parametric controls as well as a number of use cases. The help files can be accessed by pressing the «?» button available in each of the objects UI or by right-clicking (ctrl-click) the object inside Max in the unlocked patcher and selecting "Open Help".
-* **Videos, demos, Reports and Publications**: Can be found [in the Somax2 project page](http://repmus.ircam.fr/somax2).
+## How to use the patch — step by step
 
-Because of space limitations, only a few tiny audio corpora (marked with a «(A)» in the corpus menu) are included in the distributions. Check the [Somax2 Project page](http://repmus.ircam.fr/somax2) for more corpora.
+1. **Before the concert**
+   - Verify that the **Somax2** and **FluCoMa** packages are installed and visible in Max (File > Show Package Manager).
+   - Confirm the paths of the video files (`video_ia_4.mp4`, `video_glitch.mp4`, etc.) — they must be in the same folder as the patch or on Max's Search Path.
+   - Configure the audio interface: 3 inputs (bandoneón mic, bandoneón mic 2, saxophone mic) and 8 outputs (the 8 loudspeakers from the rider), via `Options > Audio Status`.
+   - Connect the projector via HDMI and set the resolution to 1920×1080.
 
-## Credits
+2. **Opening**
+   - Open `ia_final.maxpat` in Max.
+   - Click the **REC/open** button (item 0) if you want to record the session.
+   - Click **Start players/server** (item 1) to initialize `somax.server` and the two `somax.player` instances. Wait for the indicator to switch from "offline" to the active state.
 
-Somax2 (c) Ircam 2012-2024
+3. **Starting the performance**
+   - Click **LIGAR SOM** (item 3) to open the audio chain.
+   - Click **START/END PEÇA** (item 2) to start the piece: this activates continuous listening (`somax.audiorecord`), `fluid.ampgate~` (which detects the instrument's onsets and silences), and releases the initial video.
+   - The musicians improvise freely; Somax2 records, analyzes, and starts feeding improvised material back through the 8 channels once there is enough content in the buffer.
 
-Somax2 is a totally renewed version of the Somax reactive co-improvisation paradigm born in the Music Representations Team at Ircam - STMS.
+4. **During the piece**
+   - The `mode reactive` / `mode continuous` parameters can be toggled live to change the machine's response behavior (more reactive to each event, or generating a continuous stream).
+   - `start/stop influences` turns on/off the influence of one musician over the other (one player's material can "contaminate" the responses generated for the other).
+   - The Delay and Reverb (VST) can be toggled on/off with each section's `on/off` buttons.
+   - Use **PARTE B VIDEO** to trigger the second video layer/section, if the form of the piece calls for it.
 
-It is  part of the research projects ANR MERCI (Mixed Musical Reality with Creative Instruments) and ERC REACH (Raising Co-creativity in Cyber-Human Musicianship) directed by Gérard Assayag.
+5. **Ending**
+   - Click **DESLIGA VIDEO** to close the projection.
+   - Click **CLEAN BUFFER** to clear Somax's recording buffers (important between rehearsals/performances, to avoid mixing material from different sessions).
+   - Click **ACABOU** to end the piece and stop the entire process chain.
+   - If recording, close `mc.sfrecord~` (REC) to save the session file.
 
-Somax2 development by Joakim Borg, documentations and tutorials by Joakim Borg and Marco Fiorini.
+## Rehearsal tips
 
-Somax created by Gérard Assayag and Laurent Bonnasse-Gahot, adaptations and pre-version 2 by Axel Chemla Romeu Santos, early prototype by Olivier Delerue.
+- **SOM TESTE** (TEST SOUND): use this button before the concert to verify that all 8 speakers are sounding correctly and in the right rider position.
+- Run at least one full rehearsal from start to finish to calibrate the `fluid.ampgate~` thresholds (`@onthreshold`, `@offthreshold`, `@minsilencelength`) according to the room's background noise and the microphones' input level.
+- Test Somax2's response in both modes (`reactive`/`continuous`) during rehearsal, since the "machine's" behavior significantly changes how the piece is perceived.
 
-Thanks to Georges Bloch, Mikhaïl Malt and Marco Fiorini for their continuous expertise.
+---
 
-Thanks to Bernard Borron, Bernard Magnien, Carine Bonnefoy, Joëlle Léandre, Fabrizio Cassol, Marco Fiorini for their musical material used in Somax2 distribution corpus.
-
-
-## Contacting the team
-
-See [Project Page](http://repmus.ircam.fr/somax2).
+*This README was prepared from the piece's score/rider and from inspection of the `ia_final.maxpat` patch structure.*
