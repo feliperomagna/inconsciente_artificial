@@ -1,4 +1,4 @@
-# Inconsciente Artificial [Artificial Unconscious] (2025)
+# Inconsciente Artificial (2025)
 
 **Felipe Romagna**
 For bandoneón, saxophone, video and electronics
